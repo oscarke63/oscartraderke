@@ -6,8 +6,8 @@
     "node": "20.x"
   },
   "scripts": {
-    "dev": "NODE_OPTIONS=--no-warnings rsbuild dev --port 4003",
-    "build": "NODE_OPTIONS=--no-warnings rsbuild build",
+    "dev": "node --no-warnings node_modules/@rsbuild/core/bin/rsbuild.js dev --port 4003",
+    "build": "node --no-warnings node_modules/@rsbuild/core/bin/rsbuild.js build",
     "test": "jest",
     "type-check": "tsc --noEmit",
     "generate:brand-css": "node scripts/generate-brand-css.js",
