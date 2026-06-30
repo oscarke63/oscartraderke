@@ -51,6 +51,39 @@ export const isProduction = () => {
 
 export const isLocal = () => /localhost(:\d+)?$/i.test(window.location.hostname);
 
+/**
+ * Returns the OAuth redirect URI to use.
+ *
+ * Priority:
+ * 1. NEXT_PUBLIC_DERIV_REDIRECT_URI env var (set in .env.production or system env)
+ * 2. window.location.origin
+ *
+ * In development mode on a non-localhost HTTP origin, Deriv's OAuth will reject
+ * the request unless you register that exact redirect URI in your Deriv app
+ * settings.  Set NEXT_PUBLIC_DERIV_REDIRECT_URI to a registered URI (e.g.
+ * http://localhost:4003) to work around this.
+ */
+export const getRedirectURI = (): string => {
+    const envURI = process.env.NEXT_PUBLIC_DERIV_REDIRECT_URI;
+    if (envURI) return envURI;
+
+    const origin = window.location.origin;
+
+    if (
+        !isLocal() &&
+        origin.startsWith('http:') &&
+        !process.env.NEXT_PUBLIC_DERIV_REDIRECT_URI
+    ) {
+        console.warn(
+            `[Auth] OAuth redirect URI "${origin}" is on a non-localhost HTTP origin. ` +
+            'Deriv OAuth may reject it. Set NEXT_PUBLIC_DERIV_REDIRECT_URI in .env.production ' +
+            'to a registered redirect URI (e.g. http://localhost:4003) to fix this.'
+        );
+    }
+
+    return origin;
+};
+
 const getDefaultServerURL = () => {
     const isProductionEnv = isProduction();
 
@@ -105,7 +138,7 @@ export const generateOAuthURL = async (prompt?: string): Promise<string> => {
 
         const config: AuthConfig = {
             clientId,
-            redirectUri: window.location.origin,
+            redirectUri: getRedirectURI(),
             scopes: 'trade',
         };
 

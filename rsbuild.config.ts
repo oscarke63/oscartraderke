@@ -42,6 +42,10 @@ export default defineConfig({
         // Partner app name. The BFF writes this into .env.production at deploy time; the header
         // logo+name mark and the document title read it (with brand.config / default fallback).
         NEXT_PUBLIC_DERIV_APP_NAME: JSON.stringify(process.env.NEXT_PUBLIC_DERIV_APP_NAME ?? ''),
+        // OAuth redirect URI override — set this to a URI registered in your Deriv
+        // app settings when developing on a non-localhost network IP (plain HTTP
+        // redirect URIs other than localhost must be explicitly whitelisted by Deriv).
+        NEXT_PUBLIC_DERIV_REDIRECT_URI: JSON.stringify(process.env.NEXT_PUBLIC_DERIV_REDIRECT_URI ?? ''),
         // Marks the static preview build (served under /bot/preview); drives the
         // router basename so React Router resolves under that path prefix.
         NEXT_PUBLIC_APP_BUILD: JSON.stringify(process.env.NEXT_PUBLIC_APP_BUILD ?? ''),
