@@ -49,7 +49,33 @@ export const isProduction = () => {
     return productionDomains.includes(hostname);
 };
 
-export const isLocal = () => /localhost(:\d+)?$/i.test(window.location.hostname);
+export const isLocal = () => /^(localhost|127\.0\.0\.1|::1)$/i.test(window.location.hostname);
+
+const isPrivateIPv4 = (hostname: string) => {
+    const parts = hostname.split('.').map(part => Number(part));
+    if (parts.length !== 4 || parts.some(part => Number.isNaN(part))) return false;
+
+    const [first, second] = parts;
+    return (
+        first === 10 ||
+        (first === 172 && second >= 16 && second <= 31) ||
+        (first === 192 && second === 168) ||
+        (first === 169 && second === 254)
+    );
+};
+
+const redirectPrivateHttpOriginToLocalhost = (prompt?: string) => {
+    if (typeof window === 'undefined') return false;
+    if (process.env.NEXT_PUBLIC_DERIV_REDIRECT_URI) return false;
+    if (!window.location.origin.startsWith('http:')) return false;
+    if (isLocal() || !isPrivateIPv4(window.location.hostname)) return false;
+
+    const localUrl = new URL(window.location.href);
+    localUrl.hostname = 'localhost';
+    localUrl.searchParams.set('oauth_start', prompt === 'registration' ? 'registration' : 'login');
+    window.location.assign(localUrl.toString());
+    return true;
+};
 
 /**
  * Returns the OAuth redirect URI to use.
@@ -133,6 +159,8 @@ export const getDebugServiceWorker = () => {
  */
 export const generateOAuthURL = async (prompt?: string): Promise<string> => {
     try {
+        if (redirectPrivateHttpOriginToLocalhost(prompt)) return '';
+
         const clientId = process.env.NEXT_PUBLIC_DERIV_APP_ID;
         if (!clientId) return '';
 

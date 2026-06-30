@@ -2,7 +2,7 @@ import { lazy, Suspense } from 'react';
 import React from 'react';
 import { createBrowserRouter, createRoutesFromElements, Route, RouterProvider } from 'react-router-dom';
 import { cleanupUrl, handleOAuthCallback } from '@/external/deriv-core';
-import { getRedirectURI } from '@/components/shared/utils/config/config';
+import { generateOAuthURL, getRedirectURI } from '@/components/shared/utils/config/config';
 import ChunkLoader from '@/components/loader/chunk-loader';
 import LocalStorageSyncWrapper from '@/components/localStorage-sync-wrapper';
 import RoutePromptDialog from '@/components/route-prompt-dialog';
@@ -78,6 +78,15 @@ function App() {
 
     React.useEffect(() => {
         const urlParams = new URLSearchParams(window.location.search);
+        const oauthStart = urlParams.get('oauth_start');
+
+        if (oauthStart && !urlParams.has('code')) {
+            generateOAuthURL(oauthStart === 'registration' ? 'registration' : undefined).then(oauthUrl => {
+                if (oauthUrl) window.location.replace(oauthUrl);
+            });
+            return;
+        }
+
         if (!urlParams.has('code')) return;
 
         const handleCallback = async () => {

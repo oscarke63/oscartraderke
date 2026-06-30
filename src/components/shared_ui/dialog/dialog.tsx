@@ -4,7 +4,6 @@ import ReactDOM from 'react-dom';
 import { CSSTransition } from 'react-transition-group';
 import { useOnClickOutside } from '@/hooks/useOnClickOutside';
 import { LegacyClose1pxIcon } from '@deriv/quill-icons/Legacy';
-import { localize } from '@deriv-com/translations';
 import Button from '../button';
 import Text from '../text';
 
@@ -25,6 +24,7 @@ type TDialog = {
     onCancel?: () => void;
     onClose?: () => void;
     onConfirm: () => void;
+    /** @deprecated Login actions should be supplied through onCancel/onConfirm. */
     login: () => void;
     onEscapeButtonCancel?: () => void;
     portal_element_id?: string;
@@ -42,7 +42,6 @@ const Dialog = ({
     onClose,
     onConfirm,
     onEscapeButtonCancel,
-    login,
     ...other_props
 }: React.PropsWithChildren<TDialog>) => {
     const {
@@ -78,12 +77,8 @@ const Dialog = ({
     }, []);
 
     const handleCancel = () => {
-        if (cancel_button_text === localize('Log in')) {
-            login();
-        } else {
-            if (is_closed_on_cancel && enableApp) {
-                enableApp();
-            }
+        if (is_closed_on_cancel && enableApp) {
+            enableApp();
         }
         onCancel?.();
     };
