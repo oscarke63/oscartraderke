@@ -423,7 +423,7 @@
         top: 5.6rem;
         inset-inline-start: 0;
         width: 100vw;
-        height: var(--tab-content-height-mobile);
+        height: calc(var(--tab-content-height-mobile) - 7rem);
     }
 }
 

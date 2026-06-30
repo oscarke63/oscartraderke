@@ -184,9 +184,10 @@
             }
 
             @include mobile-or-tablet-screen {
-                height: calc(100vh - 19rem);
+                height: calc(100vh - 14rem);
                 align-items: flex-start;
                 padding: 1.6rem;
+                overflow-y: auto;
             }
 
             .quick-panel {
